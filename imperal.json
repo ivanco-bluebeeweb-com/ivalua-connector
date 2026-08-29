@@ -1,0 +1,3353 @@
+{
+  "manifest_schema_version": 3,
+  "sdk_version": "5.13.0",
+  "app_id": "ivalua-connector",
+  "version": "0.1.0",
+  "name": "Ivalua",
+  "description": "Connect your own Ivalua Source-to-Pay tenant through OAuth2 client credentials. Read and safely manage Requisitions, Purchase Orders, Suppliers, Invoices, Sourcing Events, Contracts, and Catalog Items through the tenant's configured REST web services.",
+  "icon": "icon.svg",
+  "actions_explicit": true,
+  "system": false,
+  "capabilities": [
+    "ivalua:read",
+    "ivalua:write"
+  ],
+  "tools": [
+    {
+      "name": "connect_ivalua",
+      "description": "Connect an Ivalua Source-to-Pay tenant (OAuth2 client credentials), after validating connectivity.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "ivalua.provider.connected"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "label": {
+            "default": "",
+            "description": "Friendly tenant label, e.g. 'Acme Production'.",
+            "title": "Label",
+            "type": "string"
+          },
+          "tenant_url": {
+            "description": "Ivalua tenant base URL, e.g. https://acme.ivalua.app.",
+            "title": "Tenant Url",
+            "type": "string"
+          },
+          "api_path_prefix": {
+            "default": "/api/v1",
+            "description": "API path prefix for this tenant. Ivalua does not publish one universal path -- leave the default unless your Ivalua admin tells you otherwise.",
+            "title": "Api Path Prefix",
+            "type": "string"
+          },
+          "client_id": {
+            "description": "OAuth2 client ID issued by your Ivalua tenant administrator.",
+            "title": "Client Id",
+            "type": "string"
+          },
+          "client_secret": {
+            "description": "OAuth2 client secret for that client.",
+            "title": "Client Secret",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_url",
+          "client_id",
+          "client_secret"
+        ],
+        "title": "ConnectIvaluaParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "tenant_url": {
+            "title": "Tenant Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "label",
+          "tenant_url"
+        ],
+        "title": "IvaluaConnection",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.connect_ivalua",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "disconnect_ivalua",
+      "description": "Disconnect one Ivalua tenant: deletes only the credentials saved in Imperal. Nothing is changed in Ivalua.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "ivalua.provider.disconnected"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "description": "Saved Ivalua tenant connection ID to remove from Imperal.",
+            "title": "Connection Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "connection_id"
+        ],
+        "title": "DisconnectIvaluaParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "deleted": {
+            "title": "Deleted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "deleted"
+        ],
+        "title": "DeleteResult",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.disconnect_ivalua",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "list_connections",
+      "description": "List the connected Ivalua tenants.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {},
+        "title": "NoParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "IvaluaConnection": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "tenant_url": {
+                "title": "Tenant Url",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "label",
+              "tenant_url"
+            ],
+            "title": "IvaluaConnection",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/IvaluaConnection"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "default": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "ConnectionList",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.list_connections",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "list_requisitions",
+      "description": "List Requisitions on the connected Ivalua tenant, optionally filtered by status.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "status": {
+            "default": "",
+            "description": "Optional requisition status filter, e.g. approved, pending_approval.",
+            "title": "Status",
+            "type": "string"
+          },
+          "top": {
+            "default": 50,
+            "description": "Maximum records to return (1-200).",
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Top",
+            "type": "integer"
+          }
+        },
+        "title": "ListRequisitionsParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "IvaluaRecord": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "fields": {
+                "additionalProperties": true,
+                "title": "Fields",
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "IvaluaRecord",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/IvaluaRecord"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "default": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecordList",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.list_requisitions",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "get_requisition",
+      "description": "Read one Requisition in full by its unique identifier.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "requisition_id": {
+            "description": "Ivalua requisition unique identifier.",
+            "title": "Requisition Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requisition_id"
+        ],
+        "title": "GetRequisitionParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.get_requisition",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "create_requisition",
+      "description": "Create a new Requisition with line items.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "ivalua.requisition.created"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "justification": {
+            "description": "Requisition justification/description.",
+            "title": "Justification",
+            "type": "string"
+          },
+          "requested_by_email": {
+            "description": "Email of the Ivalua user this requisition is created for.",
+            "title": "Requested By Email",
+            "type": "string"
+          },
+          "lines": {
+            "description": "List of {description, quantity, price, need_by_date} line dicts.",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Lines",
+            "type": "array"
+          }
+        },
+        "required": [
+          "justification",
+          "requested_by_email",
+          "lines"
+        ],
+        "title": "CreateRequisitionParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.create_requisition",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "list_purchase_orders",
+      "description": "List Purchase Orders, optionally filtered by supplier.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "supplier": {
+            "default": "",
+            "description": "Optional supplier name filter.",
+            "title": "Supplier",
+            "type": "string"
+          },
+          "top": {
+            "default": 50,
+            "description": "Maximum records to return (1-200).",
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Top",
+            "type": "integer"
+          }
+        },
+        "title": "ListPurchaseOrdersParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "IvaluaRecord": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "fields": {
+                "additionalProperties": true,
+                "title": "Fields",
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "IvaluaRecord",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/IvaluaRecord"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "default": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecordList",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.list_purchase_orders",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "get_purchase_order",
+      "description": "Read one Purchase Order in full by its unique identifier.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "order_id": {
+            "description": "Ivalua purchase order unique identifier.",
+            "title": "Order Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id"
+        ],
+        "title": "GetPurchaseOrderParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.get_purchase_order",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "create_purchase_order",
+      "description": "Create a new Purchase Order with line items.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "ivalua.purchase_order.created"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "supplier_id": {
+            "description": "Ivalua supplier unique identifier this PO is issued to.",
+            "title": "Supplier Id",
+            "type": "string"
+          },
+          "lines": {
+            "description": "List of {description, quantity, price} line dicts.",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Lines",
+            "type": "array"
+          }
+        },
+        "required": [
+          "supplier_id",
+          "lines"
+        ],
+        "title": "CreatePurchaseOrderParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.create_purchase_order",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "approve_purchase_order",
+      "description": "Approve/release a Purchase Order that is pending approval.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "ivalua.purchase_order.approved"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "order_id": {
+            "description": "Ivalua purchase order unique identifier to approve/release.",
+            "title": "Order Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id"
+        ],
+        "title": "ApprovePurchaseOrderParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.approve_purchase_order",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "list_suppliers",
+      "description": "List Suppliers registered on this Ivalua tenant.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "query": {
+            "default": "",
+            "description": "Optional supplier name search filter.",
+            "title": "Query",
+            "type": "string"
+          },
+          "top": {
+            "default": 50,
+            "description": "Maximum records to return (1-200).",
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Top",
+            "type": "integer"
+          }
+        },
+        "title": "ListSuppliersParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "IvaluaRecord": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "fields": {
+                "additionalProperties": true,
+                "title": "Fields",
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "IvaluaRecord",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/IvaluaRecord"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "default": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecordList",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.list_suppliers",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "get_supplier",
+      "description": "Read one Supplier in full by its Supplier ID.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "supplier_id": {
+            "description": "Ivalua supplier unique identifier.",
+            "title": "Supplier Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "supplier_id"
+        ],
+        "title": "GetSupplierParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.get_supplier",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "create_supplier",
+      "description": "Create a new Supplier record (onboarding).",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "ivalua.supplier.created"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "name": {
+            "description": "Supplier legal name.",
+            "title": "Name",
+            "type": "string"
+          },
+          "email": {
+            "default": "",
+            "description": "Supplier primary contact email.",
+            "title": "Email",
+            "type": "string"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "description": "Additional tenant-specific supplier fields.",
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "CreateSupplierParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.create_supplier",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "list_invoices",
+      "description": "List Invoices, optionally filtered by status (including 3-way match status).",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "status": {
+            "default": "",
+            "description": "Optional invoice status filter, e.g. approved, disputed, matched, exception.",
+            "title": "Status",
+            "type": "string"
+          },
+          "top": {
+            "default": 50,
+            "description": "Maximum records to return (1-200).",
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Top",
+            "type": "integer"
+          }
+        },
+        "title": "ListInvoicesParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "IvaluaRecord": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "fields": {
+                "additionalProperties": true,
+                "title": "Fields",
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "IvaluaRecord",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/IvaluaRecord"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "default": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecordList",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.list_invoices",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "get_invoice",
+      "description": "Read one Invoice in full by its unique identifier.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "invoice_id": {
+            "description": "Ivalua invoice unique identifier.",
+            "title": "Invoice Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invoice_id"
+        ],
+        "title": "GetInvoiceParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.get_invoice",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "list_sourcing_events",
+      "description": "List Sourcing Events (RFQ/RFP/auction projects), optionally filtered by status.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "status": {
+            "default": "",
+            "description": "Optional sourcing event status filter, e.g. open, closed, awarded.",
+            "title": "Status",
+            "type": "string"
+          },
+          "top": {
+            "default": 50,
+            "description": "Maximum records to return (1-200).",
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Top",
+            "type": "integer"
+          }
+        },
+        "title": "ListSourcingEventsParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "IvaluaRecord": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "fields": {
+                "additionalProperties": true,
+                "title": "Fields",
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "IvaluaRecord",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/IvaluaRecord"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "default": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecordList",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.list_sourcing_events",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "get_sourcing_event",
+      "description": "Read one Sourcing Event in full by its unique identifier.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "event_id": {
+            "description": "Ivalua sourcing/RFx event unique identifier.",
+            "title": "Event Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id"
+        ],
+        "title": "GetSourcingEventParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.get_sourcing_event",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "list_contracts",
+      "description": "List Contracts, optionally filtered by status.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "top": {
+            "default": 50,
+            "description": "Maximum records to return (1-200).",
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Top",
+            "type": "integer"
+          }
+        },
+        "title": "ListContractsParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "IvaluaRecord": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "fields": {
+                "additionalProperties": true,
+                "title": "Fields",
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "IvaluaRecord",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/IvaluaRecord"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "default": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecordList",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.list_contracts",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "get_contract",
+      "description": "Read one Contract in full by its unique identifier.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "contract_id": {
+            "description": "Ivalua contract unique identifier.",
+            "title": "Contract Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "contract_id"
+        ],
+        "title": "GetContractParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.get_contract",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "list_catalog_items",
+      "description": "List catalog items (punch-out/internal catalog), optionally filtered by name/SKU.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "query": {
+            "default": "",
+            "description": "Optional catalog item name/SKU search filter.",
+            "title": "Query",
+            "type": "string"
+          },
+          "top": {
+            "default": 50,
+            "description": "Maximum records to return (1-200).",
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Top",
+            "type": "integer"
+          }
+        },
+        "title": "ListCatalogItemsParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "IvaluaRecord": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "fields": {
+                "additionalProperties": true,
+                "title": "Fields",
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "IvaluaRecord",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/IvaluaRecord"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "default": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecordList",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.list_catalog_items",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "audit_ivalua_access",
+      "description": "Probe every core Ivalua module (Requisitions, POs, Suppliers, Invoices, Sourcing Events, Contracts, Catalog Items) and report which are actually reachable for this tenant, without changing anything.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          }
+        },
+        "title": "AuditAccessParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "Capability": {
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "title": "Id"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "available": {
+                "title": "Available",
+                "type": "boolean"
+              },
+              "note": {
+                "title": "Note",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "name",
+              "available",
+              "note"
+            ],
+            "title": "Capability",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "tenant_url": {
+            "title": "Tenant Url",
+            "type": "string"
+          },
+          "capabilities": {
+            "items": {
+              "$ref": "#/$defs/Capability"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "available_count": {
+            "default": 0,
+            "title": "Available Count",
+            "type": "integer"
+          },
+          "unavailable_count": {
+            "default": 0,
+            "title": "Unavailable Count",
+            "type": "integer"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/$defs/Capability"
+            },
+            "title": "Checks",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "tenant_url"
+        ],
+        "title": "AccessAudit",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.audit_ivalua_access",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    }
+  ],
+  "signals": [],
+  "schedules": [],
+  "required_scopes": [],
+  "icon_size_bytes": 636,
+  "lifecycle": {
+    "health_check": {
+      "interval_sec": 60
+    }
+  },
+  "secrets": [
+    {
+      "name": "ivalua_connections",
+      "description": "JSON list of connected Ivalua tenants and encrypted OAuth credentials. Managed only through connect_ivalua and disconnect_ivalua.",
+      "required": true,
+      "write_mode": "both",
+      "max_bytes": 65536,
+      "scope": "user",
+      "rotation_hint_days": 90
+    }
+  ],
+  "panels": [
+    {
+      "panel_id": "secrets",
+      "slot": "right",
+      "title": "Secrets",
+      "tree": {},
+      "icon": "KeyRound",
+      "refresh": "manual",
+      "center_overlay": false
+    },
+    {
+      "panel_id": "ivalua_connect_help",
+      "slot": "center",
+      "title": "Connect Ivalua",
+      "tree": {},
+      "icon": "",
+      "refresh": "manual",
+      "center_overlay": true
+    },
+    {
+      "panel_id": "ivalua_sidebar",
+      "slot": "left",
+      "title": "Ivalua",
+      "tree": {},
+      "icon": "",
+      "refresh": "manual",
+      "center_overlay": false,
+      "default_width": 340,
+      "min_width": 280,
+      "max_width": 460
+    },
+    {
+      "panel_id": "ivalua_center",
+      "slot": "center",
+      "title": "Ivalua overview",
+      "tree": {},
+      "icon": "ShoppingCart",
+      "refresh": "manual",
+      "center_overlay": true
+    },
+    {
+      "panel_id": "ivalua_settings",
+      "slot": "center",
+      "title": "Ivalua settings",
+      "tree": {},
+      "icon": "settings",
+      "refresh": "manual",
+      "center_overlay": true
+    }
+  ]
+}

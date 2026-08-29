@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Coupa Connector">
+  <defs>
+    <linearGradient id="bg" x1="14" y1="12" x2="114" y2="118" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3AAFA9"/>
+      <stop offset="1" stop-color="#12564F"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <circle cx="64" cy="64" r="34" fill="none" stroke="#fff" stroke-width="8"/>
+  <path d="M64 38a26 26 0 1 0 18 44" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-opacity=".55"/>
+  <circle cx="64" cy="64" r="10" fill="#fff"/>
+</svg>
