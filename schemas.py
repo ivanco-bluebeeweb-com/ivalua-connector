@@ -108,6 +108,32 @@ class AuditAccessParams(ConnectionRefParams):
     pass
 
 
+class ListResourceParams(ConnectionRefParams):
+    resource_name: str = Field(..., description="Tenant-configured Ivalua REST resource path, e.g. 'purchase-orders' or 'suppliers'. Use when a typed function (list_purchase_orders etc.) does not match this tenant's own Ivalua Studio object model.")
+    top: int = Field(50, ge=1, le=200, description="Maximum records to return (1-200).")
+
+
+class GetResourceParams(ConnectionRefParams):
+    resource_name: str = Field(..., description="Tenant-configured Ivalua REST resource path.")
+    record_id: str = Field(..., description="Record identifier within that resource.")
+
+
+class CreateResourceParams(ConnectionRefParams):
+    resource_name: str = Field(..., description="Tenant-configured Ivalua REST resource path.")
+    values: dict = Field(..., description="Field values for the new record, in the tenant's own configured field names.")
+
+
+class UpdateResourceParams(ConnectionRefParams):
+    resource_name: str = Field(..., description="Tenant-configured Ivalua REST resource path.")
+    record_id: str = Field(..., description="Record identifier within that resource.")
+    values: dict = Field(..., description="Field values to change, in the tenant's own configured field names. Only given fields change.")
+
+
+class DeleteResourceParams(ConnectionRefParams):
+    resource_name: str = Field(..., description="Tenant-configured Ivalua REST resource path.")
+    record_id: str = Field(..., description="Record identifier within that resource to delete.")
+
+
 class IvaluaConnection(sdl.Entity):
     id: str
     title: str

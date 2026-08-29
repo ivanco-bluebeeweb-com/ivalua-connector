@@ -24,6 +24,8 @@ from schemas import (
     ListCatalogItemsParams, ListContractsParams, ListInvoicesParams,
     ListPurchaseOrdersParams, ListRequisitionsParams, ListSourcingEventsParams,
     ListSuppliersParams, NoParams,
+    ListResourceParams, GetResourceParams, CreateResourceParams,
+    UpdateResourceParams, DeleteResourceParams,
 )
 
 _SECRET_NAME = "ivalua_connections"
@@ -343,3 +345,79 @@ async def audit_ivalua_access(ctx, params: AuditAccessParams) -> ActionResult:
         available_count=available,
         unavailable_count=len(checks) - available,
     ))
+
+
+def _generic_record(item: dict) -> IvaluaRecord:
+    title = str(item.get("name") or item.get("title") or item.get("id") or "")
+    return IvaluaRecord(id=str(item.get("id", "")), title=title, fields=item)
+
+
+@chat.function("list_resource", "Generic REST passthrough: list records of any tenant-configured Ivalua resource path (e.g. 'purchase-orders', 'suppliers'). Use this when a typed function (list_purchase_orders etc.) does not match this tenant's own Ivalua Studio object model -- Ivalua is a no-code platform and object names/paths can be customised per tenant.", action_type="read", chain_callable=True, data_model=IvaluaRecordList, event="ivalua-connector.list_resource")
+async def list_resource(ctx, params: ListResourceParams) -> ActionResult:
+    """Imperal action: list_resource (generic passthrough)."""
+    connection = await _resolve_connection(ctx, params.connection_id)
+    if not connection:
+        return await _no_connection_error()
+    client = _client_from(connection)
+    try:
+        items = await client.list_resource(params.resource_name, params={"limit": params.top})
+    except ic.IvaluaError as exc:
+        return ActionResult.error(str(exc))
+    records = [_generic_record(item) for item in items]
+    return ActionResult.ok(IvaluaRecordList(items=records, total=len(records)))
+
+
+@chat.function("get_resource", "Generic REST passthrough: read one record of any tenant-configured Ivalua resource path by id. Use when a typed get_* function does not match this tenant's own object model.", action_type="read", chain_callable=True, data_model=IvaluaRecord, event="ivalua-connector.get_resource")
+async def get_resource(ctx, params: GetResourceParams) -> ActionResult:
+    """Imperal action: get_resource (generic passthrough)."""
+    connection = await _resolve_connection(ctx, params.connection_id)
+    if not connection:
+        return await _no_connection_error()
+    client = _client_from(connection)
+    try:
+        item = await client.get_resource(params.resource_name, params.record_id)
+    except ic.IvaluaError as exc:
+        return ActionResult.error(str(exc))
+    return ActionResult.ok(_generic_record(item))
+
+
+@chat.function("create_resource", "Generic REST passthrough: create a record on any tenant-configured Ivalua resource path, using the tenant's own configured field names. Use when a typed create_* function does not match this tenant's own object model.", action_type="write", chain_callable=True, data_model=IvaluaRecord, event="ivalua-connector.create_resource", effects=["ivalua.resource.created"])
+async def create_resource(ctx, params: CreateResourceParams) -> ActionResult:
+    """Imperal action: create_resource (generic passthrough)."""
+    connection = await _resolve_connection(ctx, params.connection_id)
+    if not connection:
+        return await _no_connection_error()
+    client = _client_from(connection)
+    try:
+        item = await client.create_resource(params.resource_name, params.values)
+    except ic.IvaluaError as exc:
+        return ActionResult.error(str(exc))
+    return ActionResult.ok(_generic_record(item))
+
+
+@chat.function("update_resource", "Generic REST passthrough: update selected fields of an existing record on any tenant-configured Ivalua resource path. Only given fields change.", action_type="write", chain_callable=True, data_model=IvaluaRecord, event="ivalua-connector.update_resource", effects=["ivalua.resource.updated"])
+async def update_resource(ctx, params: UpdateResourceParams) -> ActionResult:
+    """Imperal action: update_resource (generic passthrough)."""
+    connection = await _resolve_connection(ctx, params.connection_id)
+    if not connection:
+        return await _no_connection_error()
+    client = _client_from(connection)
+    try:
+        item = await client.update_resource(params.resource_name, params.record_id, params.values)
+    except ic.IvaluaError as exc:
+        return ActionResult.error(str(exc))
+    return ActionResult.ok(_generic_record(item))
+
+
+@chat.function("delete_resource", "Generic REST passthrough: permanently delete a record on any tenant-configured Ivalua resource path. Cannot be undone.", action_type="write", chain_callable=True, data_model=DeleteResult, event="ivalua-connector.delete_resource", effects=["ivalua.resource.deleted"])
+async def delete_resource(ctx, params: DeleteResourceParams) -> ActionResult:
+    """Imperal action: delete_resource (generic passthrough)."""
+    connection = await _resolve_connection(ctx, params.connection_id)
+    if not connection:
+        return await _no_connection_error()
+    client = _client_from(connection)
+    try:
+        await client.delete_resource(params.resource_name, params.record_id)
+    except ic.IvaluaError as exc:
+        return ActionResult.error(str(exc))
+    return ActionResult.ok(DeleteResult(id=params.record_id, deleted=True))

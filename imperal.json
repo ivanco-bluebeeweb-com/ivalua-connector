@@ -3278,6 +3278,695 @@
       "long_running": false,
       "scopes": [],
       "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "list_resource",
+      "description": "Generic REST passthrough: list records of any tenant-configured Ivalua resource path (e.g. 'purchase-orders', 'suppliers'). Use this when a typed function (list_purchase_orders etc.) does not match this tenant's own Ivalua Studio object model -- Ivalua is a no-code platform and object names/paths can be customised per tenant.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "resource_name": {
+            "description": "Tenant-configured Ivalua REST resource path, e.g. 'purchase-orders' or 'suppliers'. Use when a typed function (list_purchase_orders etc.) does not match this tenant's own Ivalua Studio object model.",
+            "title": "Resource Name",
+            "type": "string"
+          },
+          "top": {
+            "default": 50,
+            "description": "Maximum records to return (1-200).",
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Top",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "resource_name"
+        ],
+        "title": "ListResourceParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "IvaluaRecord": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "fields": {
+                "additionalProperties": true,
+                "title": "Fields",
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "IvaluaRecord",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/IvaluaRecord"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "default": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecordList",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.list_resource",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "get_resource",
+      "description": "Generic REST passthrough: read one record of any tenant-configured Ivalua resource path by id. Use when a typed get_* function does not match this tenant's own object model.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "resource_name": {
+            "description": "Tenant-configured Ivalua REST resource path.",
+            "title": "Resource Name",
+            "type": "string"
+          },
+          "record_id": {
+            "description": "Record identifier within that resource.",
+            "title": "Record Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resource_name",
+          "record_id"
+        ],
+        "title": "GetResourceParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.get_resource",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "create_resource",
+      "description": "Generic REST passthrough: create a record on any tenant-configured Ivalua resource path, using the tenant's own configured field names. Use when a typed create_* function does not match this tenant's own object model.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "ivalua.resource.created"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "resource_name": {
+            "description": "Tenant-configured Ivalua REST resource path.",
+            "title": "Resource Name",
+            "type": "string"
+          },
+          "values": {
+            "additionalProperties": true,
+            "description": "Field values for the new record, in the tenant's own configured field names.",
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "required": [
+          "resource_name",
+          "values"
+        ],
+        "title": "CreateResourceParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.create_resource",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "update_resource",
+      "description": "Generic REST passthrough: update selected fields of an existing record on any tenant-configured Ivalua resource path. Only given fields change.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "ivalua.resource.updated"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "resource_name": {
+            "description": "Tenant-configured Ivalua REST resource path.",
+            "title": "Resource Name",
+            "type": "string"
+          },
+          "record_id": {
+            "description": "Record identifier within that resource.",
+            "title": "Record Id",
+            "type": "string"
+          },
+          "values": {
+            "additionalProperties": true,
+            "description": "Field values to change, in the tenant's own configured field names. Only given fields change.",
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "required": [
+          "resource_name",
+          "record_id",
+          "values"
+        ],
+        "title": "UpdateResourceParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "IvaluaRecord",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.update_resource",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
+    },
+    {
+      "name": "delete_resource",
+      "description": "Generic REST passthrough: permanently delete a record on any tenant-configured Ivalua resource path. Cannot be undone.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "ivalua.resource.deleted"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "connection_id": {
+            "default": "",
+            "description": "Optional saved Ivalua tenant connection ID. Omit to use the first connected tenant.",
+            "title": "Connection Id",
+            "type": "string"
+          },
+          "resource_name": {
+            "description": "Tenant-configured Ivalua REST resource path.",
+            "title": "Resource Name",
+            "type": "string"
+          },
+          "record_id": {
+            "description": "Record identifier within that resource to delete.",
+            "title": "Record Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resource_name",
+          "record_id"
+        ],
+        "title": "DeleteResourceParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "deleted": {
+            "title": "Deleted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "deleted"
+        ],
+        "title": "DeleteResult",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "ivalua-connector.delete_resource",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "ivalua"
     }
   ],
   "signals": [],

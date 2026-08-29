@@ -129,3 +129,24 @@ class IvaluaClient:
             return resp.json()
         except ValueError:
             return {}
+
+    async def list_resource(self, resource_name: str, *, params: dict | None = None) -> list[dict]:
+        """Generic passthrough: list records of any tenant-configured resource path."""
+        body = await self.request("GET", resource_name, params=params)
+        return rest_items(body)
+
+    async def get_resource(self, resource_name: str, record_id: str) -> dict:
+        """Generic passthrough: read one record of any tenant-configured resource path."""
+        return await self.request("GET", f"{resource_name}/{record_id}")
+
+    async def create_resource(self, resource_name: str, values: dict) -> dict:
+        """Generic passthrough: create a record on any tenant-configured resource path."""
+        return await self.request("POST", resource_name, json_body=values)
+
+    async def update_resource(self, resource_name: str, record_id: str, values: dict) -> dict:
+        """Generic passthrough: update a record on any tenant-configured resource path."""
+        return await self.request("PATCH", f"{resource_name}/{record_id}", json_body=values)
+
+    async def delete_resource(self, resource_name: str, record_id: str) -> None:
+        """Generic passthrough: delete a record on any tenant-configured resource path."""
+        await self.request("DELETE", f"{resource_name}/{record_id}")
