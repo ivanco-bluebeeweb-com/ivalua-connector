@@ -116,7 +116,7 @@ async def connect_ivalua(ctx, params: ConnectIvaluaParams) -> ActionResult:
     }
     connections.append(connection)
     await _save_connections(ctx, connections)
-    return ActionResult.ok(_connection_entity(connection))
+    return ActionResult.success(_connection_entity(connection), summary="Ivalua connected.")
 
 
 @chat.function("disconnect_ivalua", "Disconnect one Ivalua tenant: deletes only the credentials saved in Imperal. Nothing is changed in Ivalua.", action_type="write", chain_callable=True, data_model=DeleteResult, event="ivalua-connector.disconnect_ivalua", effects=["ivalua.provider.disconnected"])
@@ -127,7 +127,7 @@ async def disconnect_ivalua(ctx, params: DisconnectIvaluaParams) -> ActionResult
     if len(remaining) == len(connections):
         return ActionResult.error("No connection found with that id.", code="IVALUA_CONNECTION_NOT_FOUND")
     await _save_connections(ctx, remaining)
-    return ActionResult.ok(DeleteResult(deleted=True, id=params.connection_id))
+    return ActionResult.success(DeleteResult(deleted=True, id=params.connection_id), summary="Ivalua disconnected.")
 
 
 @chat.function("list_connections", "List the connected Ivalua tenants.", action_type="read", chain_callable=True, data_model=ConnectionList, event="ivalua-connector.list_connections")
@@ -135,7 +135,7 @@ async def list_connections(ctx, params: NoParams) -> ActionResult:
     """Imperal action: list_connections."""
     connections = await _load_connections(ctx)
     items = [_connection_entity(c) for c in connections]
-    return ActionResult.ok(ConnectionList(items=items, total=len(items)))
+    return ActionResult.success(ConnectionList(items=items, total=len(items)), summary="Connections listed.")
 
 
 async def _list_resource(ctx, params, path: str, id_key: str, title_keys: list[str], extra_params: dict | None = None) -> ActionResult:
@@ -152,7 +152,7 @@ async def _list_resource(ctx, params, path: str, id_key: str, title_keys: list[s
         return ActionResult.error(str(exc), code="IVALUA_REQUEST_FAILED", retryable=exc.retryable)
     items = ic.rest_items(body)
     records = [_record(item, id_key, title_keys) for item in items]
-    return ActionResult.ok(IvaluaRecordList(items=records, total=len(records)))
+    return ActionResult.success(IvaluaRecordList(items=records, total=len(records)), summary=" list resource done.")
 
 
 async def _get_resource(ctx, params, path: str, id_key: str, title_keys: list[str]) -> ActionResult:
@@ -164,7 +164,7 @@ async def _get_resource(ctx, params, path: str, id_key: str, title_keys: list[st
         body = await client.request("get", path)
     except ic.IvaluaError as exc:
         return ActionResult.error(str(exc), code="IVALUA_REQUEST_FAILED", retryable=exc.retryable)
-    return ActionResult.ok(_record(body, id_key, title_keys))
+    return ActionResult.success(_record(body, id_key, title_keys), summary=" get resource done.")
 
 
 @chat.function("list_requisitions", "List Requisitions on the connected Ivalua tenant, optionally filtered by status.", action_type="read", chain_callable=True, data_model=IvaluaRecordList, event="ivalua-connector.list_requisitions")
@@ -196,7 +196,7 @@ async def create_requisition(ctx, params: CreateRequisitionParams) -> ActionResu
         body = await client.request("post", "/requisitions", json_body=payload)
     except ic.IvaluaError as exc:
         return ActionResult.error(str(exc), code="IVALUA_REQUEST_FAILED", retryable=exc.retryable)
-    return ActionResult.ok(_record(body, "id", ["justification", "name", "title"]))
+    return ActionResult.success(_record(body, "id", ["justification", "name", "title"]), summary="Requisition created.")
 
 
 @chat.function("list_purchase_orders", "List Purchase Orders, optionally filtered by supplier.", action_type="read", chain_callable=True, data_model=IvaluaRecordList, event="ivalua-connector.list_purchase_orders")
@@ -224,7 +224,7 @@ async def create_purchase_order(ctx, params: CreatePurchaseOrderParams) -> Actio
         body = await client.request("post", "/purchase_orders", json_body=payload)
     except ic.IvaluaError as exc:
         return ActionResult.error(str(exc), code="IVALUA_REQUEST_FAILED", retryable=exc.retryable)
-    return ActionResult.ok(_record(body, "id", ["po_number", "name", "title"]))
+    return ActionResult.success(_record(body, "id", ["po_number", "name", "title"]), summary="Purchase order created.")
 
 
 @chat.function("approve_purchase_order", "Approve/release a Purchase Order that is pending approval.", action_type="write", chain_callable=True, data_model=IvaluaRecord, event="ivalua-connector.approve_purchase_order", effects=["ivalua.purchase_order.approved"])
@@ -238,7 +238,7 @@ async def approve_purchase_order(ctx, params: ApprovePurchaseOrderParams) -> Act
         body = await client.request("post", f"/purchase_orders/{params.order_id}/approve", json_body={})
     except ic.IvaluaError as exc:
         return ActionResult.error(str(exc), code="IVALUA_REQUEST_FAILED", retryable=exc.retryable)
-    return ActionResult.ok(_record(body, "id", ["po_number", "name", "title"]))
+    return ActionResult.success(_record(body, "id", ["po_number", "name", "title"]), summary="Approve purchase order done.")
 
 
 @chat.function("list_suppliers", "List Suppliers registered on this Ivalua tenant.", action_type="read", chain_callable=True, data_model=IvaluaRecordList, event="ivalua-connector.list_suppliers")
@@ -266,7 +266,7 @@ async def create_supplier(ctx, params: CreateSupplierParams) -> ActionResult:
         body = await client.request("post", "/suppliers", json_body=payload)
     except ic.IvaluaError as exc:
         return ActionResult.error(str(exc), code="IVALUA_REQUEST_FAILED", retryable=exc.retryable)
-    return ActionResult.ok(_record(body, "id", ["name"]))
+    return ActionResult.success(_record(body, "id", ["name"]), summary="Supplier created.")
 
 
 @chat.function("list_invoices", "List Invoices, optionally filtered by status (including 3-way match status).", action_type="read", chain_callable=True, data_model=IvaluaRecordList, event="ivalua-connector.list_invoices")
@@ -338,13 +338,13 @@ async def audit_ivalua_access(ctx, params: AuditAccessParams) -> ActionResult:
         except ic.IvaluaError as exc:
             checks.append(Capability(name=name, available=False, note=str(exc)))
     available = sum(1 for c in checks if c.available)
-    return ActionResult.ok(AccessAudit(
+    return ActionResult.success(AccessAudit(
         tenant_url=connection.get("tenant_url", ""),
         capabilities=checks,
         checks=checks,
         available_count=available,
         unavailable_count=len(checks) - available,
-    ))
+    ), summary="Ivalua access audit ready.")
 
 
 def _generic_record(item: dict) -> IvaluaRecord:
@@ -364,7 +364,7 @@ async def list_resource(ctx, params: ListResourceParams) -> ActionResult:
     except ic.IvaluaError as exc:
         return ActionResult.error(str(exc))
     records = [_generic_record(item) for item in items]
-    return ActionResult.ok(IvaluaRecordList(items=records, total=len(records)))
+    return ActionResult.success(IvaluaRecordList(items=records, total=len(records)), summary="Resource listed.")
 
 
 @chat.function("get_resource", "Generic REST passthrough: read one record of any tenant-configured Ivalua resource path by id. Use when a typed get_* function does not match this tenant's own object model.", action_type="read", chain_callable=True, data_model=IvaluaRecord, event="ivalua-connector.get_resource")
@@ -378,7 +378,7 @@ async def get_resource(ctx, params: GetResourceParams) -> ActionResult:
         item = await client.get_resource(params.resource_name, params.record_id)
     except ic.IvaluaError as exc:
         return ActionResult.error(str(exc))
-    return ActionResult.ok(_generic_record(item))
+    return ActionResult.success(_generic_record(item), summary="Resource retrieved.")
 
 
 @chat.function("create_resource", "Generic REST passthrough: create a record on any tenant-configured Ivalua resource path, using the tenant's own configured field names. Use when a typed create_* function does not match this tenant's own object model.", action_type="write", chain_callable=True, data_model=IvaluaRecord, event="ivalua-connector.create_resource", effects=["ivalua.resource.created"])
@@ -392,7 +392,7 @@ async def create_resource(ctx, params: CreateResourceParams) -> ActionResult:
         item = await client.create_resource(params.resource_name, params.values)
     except ic.IvaluaError as exc:
         return ActionResult.error(str(exc))
-    return ActionResult.ok(_generic_record(item))
+    return ActionResult.success(_generic_record(item), summary="Resource created.")
 
 
 @chat.function("update_resource", "Generic REST passthrough: update selected fields of an existing record on any tenant-configured Ivalua resource path. Only given fields change.", action_type="write", chain_callable=True, data_model=IvaluaRecord, event="ivalua-connector.update_resource", effects=["ivalua.resource.updated"])
@@ -406,7 +406,7 @@ async def update_resource(ctx, params: UpdateResourceParams) -> ActionResult:
         item = await client.update_resource(params.resource_name, params.record_id, params.values)
     except ic.IvaluaError as exc:
         return ActionResult.error(str(exc))
-    return ActionResult.ok(_generic_record(item))
+    return ActionResult.success(_generic_record(item), summary="Resource updated.")
 
 
 @chat.function("delete_resource", "Generic REST passthrough: permanently delete a record on any tenant-configured Ivalua resource path. Cannot be undone.", action_type="write", chain_callable=True, data_model=DeleteResult, event="ivalua-connector.delete_resource", effects=["ivalua.resource.deleted"])
@@ -420,4 +420,4 @@ async def delete_resource(ctx, params: DeleteResourceParams) -> ActionResult:
         await client.delete_resource(params.resource_name, params.record_id)
     except ic.IvaluaError as exc:
         return ActionResult.error(str(exc))
-    return ActionResult.ok(DeleteResult(id=params.record_id, deleted=True))
+    return ActionResult.success(DeleteResult(id=params.record_id, deleted=True), summary="Resource deleted.")
