@@ -16,9 +16,7 @@ import handlers as h
 
 def _settings_button() -> ui.UINode:
     return ui.Button(
-        "App settings", variant="secondary", size="sm", full_width=True,
-        icon="settings", on_click=ui.Call("__panel__ivalua_settings"),
-    )
+        "App settings", variant="secondary", size="sm", icon="settings", on_click=ui.Call("__panel__ivalua_settings"))
 
 
 def _field(label: str, node: ui.UINode) -> ui.UINode:
@@ -98,8 +96,7 @@ async def ivalua_center_panel(ctx, **kwargs) -> ui.UINode:
     from schemas import (
         AuditAccessParams, ListRequisitionsParams, ListPurchaseOrdersParams,
         ListSuppliersParams, ListInvoicesParams, ListSourcingEventsParams,
-        ListContractsParams, ListCatalogItemsParams,
-    )
+        ListContractsParams, ListCatalogItemsParams)
 
     conn_id = connections[0].get("id", "")
     section = kwargs.get("section", "")
